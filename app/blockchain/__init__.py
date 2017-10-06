@@ -28,7 +28,7 @@ class Block(NamedTuple):
 
 class Blockchain:
     def __init__(self):
-        self._chain : List[Block] = []
+        self._chain: List[Block] = []
         self._current_transactions: List[Transaction] = []
 
         self.new_block(proof=100, previous_hash=None)
@@ -59,7 +59,7 @@ class Blockchain:
         return block
 
     @property
-    def last_block(self) -> Optional(Block):
+    def last_block(self) -> Optional[Block]:
         if len(self._chain) == 0:
             return None
         return self._chain[-1]
