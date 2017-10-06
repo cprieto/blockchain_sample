@@ -14,7 +14,7 @@ class TestBlockChainApp(unittest.TestCase):
 
     def test_create_new_transaction(self):
         response = self.client.post('/transaction',
-                                    data=json.dumps({'sender': '', 'recipient': '', 'amount': 10.0}),
+                                    data=json.dumps({'sender': 'abcdef', 'recipient': 'fedcba', 'amount': 10.0}),
                                     content_type='application/json')
 
         assert response.status_code == 200

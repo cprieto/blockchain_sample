@@ -1,26 +1,24 @@
 from typing import Dict
 from flask_restful import Resource
-from flask_restful import reqparse
+from webargs import fields
+from webargs.flaskparser import use_kwargs
 from .blockchain import Blockchain
 
 
 class Transaction(Resource):
+    transaction_args = {
+        'sender': fields.Str(required=True),
+        'recipient': fields.Str(required=True),
+        'amount': fields.Float(required=True)
+    }
+
     def __init__(self, blockchain: Blockchain):
         self._blockchain = blockchain
 
-    def post(self) -> Dict:
-        """
-        Create a new transaction in the chain
-        :return: index of added transaction and message
-        """
+    @use_kwargs(transaction_args)
+    def post(self, sender: str, recipient: str, amount: float) -> Dict:
 
-        parser = reqparse.RequestParser()
-        parser.add_argument('sender', required=True)
-        parser.add_argument('recipient', required=True)
-        parser.add_argument('amount', type=float, required=True)
-
-        transaction = parser.parse_args()
-        index = self._blockchain.new_transaction(transaction.sender, transaction.recipient, transaction.amount)
+        index = self._blockchain.new_transaction(sender, recipient, amount)
 
         return {
             'message': f'I create a transaction boy, with index {index}',
