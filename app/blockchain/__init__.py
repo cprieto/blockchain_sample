@@ -1,26 +1,28 @@
 import hashlib
-import json
+import jsonpickle
 from time import time
-from typing import NamedTuple, List, Optional
+from typing import List, Optional
 
 __all__ = ['Blockchain']
 
 
-class Transaction(NamedTuple):
-    sender: str
-    recipient: str
-    amount: float
+class Transaction:
+    def __init__(self, sender: str, recipient: str, amount: float):
+        self.sender: str = sender
+        self.recipient: str = recipient
+        self.amount: float = amount
 
     def __repr__(self):
         return f'<Transaction {self.sender}:{self.recipient}>'
 
 
-class Block(NamedTuple):
-    index: int
-    timestamp: float
-    transactions: List[Transaction]
-    proof: int
-    previous_hash: Optional[str]
+class Block:
+    def __init__(self, index: int, timestamp: float, transactions: List[Transaction], proof: int, previous_hash: str):
+        self.index: int = index
+        self.timestamp: float = timestamp
+        self.transactions: List[Transaction] = transactions
+        self.proof: int = proof
+        self.previous_hash: Optional[str] = previous_hash
 
     def __repr__(self):
         return f'<Block {self.index}:{self.timestamp}>'
@@ -44,13 +46,14 @@ class Blockchain:
             return self.last_block.index + 1
         return 1
 
-    def new_block(self, proof: int, previous_hash: Optional[str]) -> Block:
+    def new_block(self, proof: int, previous_hash: Optional[str] = None) -> Block:
+
         block = Block(
             index=len(self._chain) + 1,
             timestamp=time(),
             transactions=self._current_transactions,
             proof=proof,
-            previous_hash=previous_hash
+            previous_hash=previous_hash or self.hash(self.last_block)
         )
 
         self._current_transactions = []
@@ -59,14 +62,21 @@ class Blockchain:
         return block
 
     @property
+    def length(self) -> int:
+        return len(self._chain)
+
+    @property
     def last_block(self) -> Optional[Block]:
         if len(self._chain) == 0:
             return None
         return self._chain[-1]
 
     @staticmethod
-    def hash(block) -> str:
-        block_string = json.dumps(block, sort_keys=True).encode()
+    def hash(block: Optional[Block]) -> str:
+        if not block:
+            return ''
+
+        block_string = jsonpickle.dumps(block.__dict__, unpicklable=False).encode()
         return hashlib.sha256(block_string).hexdigest()
 
     def proof_of_work(self, last_proof: int) -> int:
@@ -80,4 +90,4 @@ class Blockchain:
     def valid_proof(last_proof: int, proof: int) -> bool:
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[-4] == '0000'
+        return guess_hash[:4] == '0000'

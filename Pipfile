@@ -11,6 +11,7 @@ flask = "*"
 "flask-restful" = "*"
 "flask-script" = "*"
 webargs = "*"
+jsonpickle = "*"
 
 
 [requires]
