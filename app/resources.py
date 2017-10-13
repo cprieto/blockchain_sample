@@ -84,3 +84,16 @@ class Mine(Resource):
             'message': 'New block forged',
             'block': block
         }
+
+
+class Nodes(Resource):
+    def __init__(self, blockchain: Blockchain):
+        self._blockchain = blockchain
+
+    nodes_args = {
+        fields.List(fields.Url)
+    }
+
+    @use_kwargs(nodes_args)
+    def post(self, nodes):
+        pass
